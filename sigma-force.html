@@ -46,18 +46,90 @@
 		//   . C clusters
 		//   . d the proportion of edges that connect two nodes
 		//     from the same cluster
-		var i, N = 30, E = 100, C = 3, d = 0.5, clusters = [];
+		var i, N = 10, E = 30, C = 3, d = 0.5, clusters = [];
 		for(i = 0; i < C; i++)
 		{
-			clusters.push(
+			clusters[i] =
 				{
 					'id': i,
 					'nodes': [],
 					'color': 'rgb('+Math.round(Math.random()*256)+','+
 								  Math.round(Math.random()*256)+','+
 								  Math.round(Math.random()*256)+')'
-				});
+				};
 		}
+		
+		// Create blogs clusters
+		clusters['blogs-cluster'] =
+				{
+					'id': 'blogs-cluster',
+					'nodes': [],
+					'color': 'rgb('+Math.round(Math.random()*256)+','+
+								  Math.round(Math.random()*256)+','+
+								  Math.round(Math.random()*256)+')'
+				};
+		
+		// Create master node 
+		sigInst.addNode('master',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+				});
+		
+		// Add parent node to blog cluster
+		var cluster = clusters['blogs-cluster'];
+		sigInst.addNode('blogs',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+					'color': cluster['color'],
+					'cluster': cluster['id']
+				});
+		cluster.nodes.push('blogs');
+			
+		// Add jtorn to blog cluster
+		var cluster = clusters['blogs-cluster'];
+		sigInst.addNode('jtorn',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+					'color': cluster['color'],
+					'cluster': cluster['id']
+				});
+		cluster.nodes.push('jtorn');
+		
+		// Add kmouse to blog cluster
+		var cluster = clusters['blogs-cluster'];
+		sigInst.addNode('kmouse',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+					'color': cluster['color'],
+					'cluster': cluster['id']
+				});
+		cluster.nodes.push('kmouse');
+		
+		// Add fraseraddison to blog cluster
+		var cluster = clusters['blogs-cluster'];
+		sigInst.addNode('fraseraddison',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+					'color': cluster['color'],
+					'cluster': cluster['id']
+				});
+		cluster.nodes.push('fraseraddison');
+		
+		// Build blog edges
+		sigInst.addEdge(E+0, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('jtorn')]);
+		sigInst.addEdge(E+1, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('kmouse')]);
+		sigInst.addEdge(E+2, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('fraseraddison')]);
+		
 		
 		// Build clusters
 		for(i = 0; i < N; i++)
@@ -88,6 +160,13 @@
 			}
 		}
 		
+		for (i = 0; i < clusters.length; i++)
+		{
+			sigInst.addEdge(E+3+i, sigInst.getNodes('master').id, clusters[i].nodes[0]);
+		}
+		var blogsCluster = clusters['blogs-cluster'];
+		sigInst.addEdge(E+3+clusters.length, sigInst.getNodes('master').id, blogsCluster.nodes[blogsCluster.nodes.indexOf('blogs')]);
+		
 		// Click event handling
 		sigInst.bind('downnodes',function(event)
 			{
@@ -96,6 +175,8 @@
 					{
 						node = n;
 					},[event.content[0]]);
+				//if (node['label'] == 'jtorn')
+				//document.getElementById("node-text").innerHTML=node['label'];
 				document.getElementById("node-text").innerHTML=node['label'];
 				//window.open("http://google.ca","_blank");
 			});
