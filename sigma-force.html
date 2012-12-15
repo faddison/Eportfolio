@@ -8,6 +8,7 @@
 		<script src="/js/sigma.min.js"></script>
 		<script src="/js/sigma.forceatlas2.js"></script>
 		<script src="/js/bootstrap.min.js"></script>
+		<script src="https://www.google.com/jsapi"></script>
 	</head>
 	<body>
 	
@@ -27,10 +28,13 @@
 	
 	<div class="row">
 		<div class="test" id="node-text">Click a node</div>
+		<div class="test" id="feed">Feed populates Here.</div>
 	</div><!-- .row -->
 	
 	</div><!-- .container -->
-	
+	<script type="text/javascript">
+	//google.load('feeds', '1', {callback : function(){}});
+	</script>
 	<script type="text/javascript">
 	function init() 
 	{
@@ -49,7 +53,7 @@
 		var i, N = 10, E = 30, C = 3, d = 0.5, clusters = [];
 		for(i = 0; i < C; i++)
 		{
-			clusters[i] =
+		clusters[i] =
 				{
 					'id': i,
 					'nodes': [],
@@ -85,7 +89,7 @@
 					'y': Math.random(),
 					'size': 10,
 					'color': cluster['color'],
-					'cluster': cluster['id']
+					'cluster': cluster['id'],
 				});
 		cluster.nodes.push('blogs');
 			
@@ -97,7 +101,8 @@
 					'y': Math.random(),
 					'size': 10,
 					'color': cluster['color'],
-					'cluster': cluster['id']
+					'cluster': cluster['id'],
+					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
 				});
 		cluster.nodes.push('jtorn');
 		
@@ -178,6 +183,8 @@
 				//if (node['label'] == 'jtorn')
 				//document.getElementById("node-text").innerHTML=node['label'];
 				document.getElementById("node-text").innerHTML=node['label'];
+				//console.log(node['attr'].id);
+				loadFeeds(node['attr'].attr.val);
 				//window.open("http://google.ca","_blank");
 			});
 
@@ -213,9 +220,7 @@
 		//sigInst.draw();
 	 
 	}
-	 
-	 
-	 
+	
 	if (document.addEventListener) 
 	{
 		document.addEventListener('DOMContentLoaded', init, false);
@@ -225,6 +230,52 @@
 		window.onload = init;
 	}
 	</script>
+	<script type="text/javascript">
+	function loadFeeds(address)
+	{
+	//google.load('feeds','1');
+	google.load('feeds', '1', {callback : onGoogleReady});
+	
+	function onGoogleReady()
+	{
+		var callback = populateRSSFeed('feed-list-wrapper-1');
+		initializeRSSFeed(callback, address);
+	}
+	google.setOnLoadCallback(onGoogleReady);
+
+	function populateRSSFeed(divID) {
+		var targetDiv = document.getElementById(divID);
+		return function callback(result) {
+			if (!result.error)
+			{
+				var content = document.getElementById("feed");
+				var html = ''
+				for (var i = 0; i < result.feed.entries.length; i++) 
+				{
+					var entry = result.feed.entries[i];
+					console.log(entry.toString());
+					html += '<p><a href="' + entry.url + '">' + entry.title + '</a></p>';
+				}
+				content.innerHTML = html;
+			}
+			else
+				alert('Error fetching feeds!');
+		}
+	}
+
+
+	function initializeRSSFeed(callback, targetFeed) 
+	{
+		//google.load('feeds','1');
+		var feed = new google.feeds.Feed(targetFeed);
+		var numEntries = 3;
+		feed.setNumEntries(numEntries);
+		feed.load(callback);
+	}
+}
+	</script>
+	
+
 	<style type="text/css">
 	  /* sigma.js context : */
 	  .sigma-parent {
