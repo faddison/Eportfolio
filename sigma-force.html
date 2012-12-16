@@ -31,8 +31,8 @@
 	</div><!-- .row -->
 	
 	<div class="row">
-		<div class="test" id="node-text">Click a node</div>
-		<div class="test" id="feed">Feed me...</div>
+		<div class="span12" id="node-text">Click a node</div>
+		<div class="span12" id="feed">Feed me...</div>
 	</div><!-- .row -->
 	
 	</div><!-- .container -->
@@ -49,6 +49,7 @@
 	"http://fraseraddison.wordpress.com/feed",
 	"http://kmouse.wordpress.com/feed"];
 	var fakeNodes = [];
+	var nodeSize = 5;
 	
 	loadFeeds();
 	
@@ -95,7 +96,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': 'rgb(256,256,256)'
 				});
 		
@@ -105,7 +106,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id'],
 				});
@@ -117,7 +118,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id'],
 					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
@@ -132,7 +133,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id'],
 					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
@@ -146,7 +147,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id']
 				});
@@ -158,7 +159,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id']
 				});
@@ -177,7 +178,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': cluster['color'],
 					'cluster': cluster['id']
 				});
@@ -256,7 +257,7 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10,
+					'size': nodeSize,
 					'color': 'rgb(256,256,256)'
 				});
 				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
