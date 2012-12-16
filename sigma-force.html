@@ -20,6 +20,7 @@
 		<div class="span12 buttons-container">
 			<button class="btn" id="stop-layout">Stop Layout</button>
 			<button class="btn" id="rescale-graph">Rescale Graph</button>
+			<button class="btn" id="add-node">Add Node</button>
     		</div>
 	
 		<div class="span12 sigma-parent" id="sigma-example-parent">
@@ -28,7 +29,7 @@
 	
 	<div class="row">
 		<div class="test" id="node-text">Click a node</div>
-		<div class="test" id="feed">Feed populates Here.</div>
+		<div class="test" id="feed">Feed me...</div>
 	</div><!-- .row -->
 	
 	</div><!-- .container -->
@@ -36,8 +37,20 @@
 	//google.load('feeds', '1', {callback : function(){}});
 	</script>
 	<script type="text/javascript">
+	var kmouseEntries = [];
+	var jtornEntries = [];
+	var feeds = [];
+	var fraseraddisonEntries = [];
+	var feedAddresses = [
+	"http://jtorn.wordpress.com/feed",
+	"http://fraseraddison.wordpress.com/feed",
+	"http://kmouse.wordpress.com/feed"];
+	
+	loadFeeds();
+	
 	function init() 
 	{
+		
 		// Instanciate sigma.js and customize it :
 		var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(
 			{
@@ -106,6 +119,22 @@
 				});
 		cluster.nodes.push('jtorn');
 		
+		// create jtorn nodes
+		for (i = 0; i < jtornEntries.length; i++)
+		{
+			var entry = jtornEntries[i];
+			sigInst.addNode('jtorn',
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10,
+					'color': cluster['color'],
+					'cluster': cluster['id'],
+					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
+				});
+			cluster.nodes.push('jtorn');
+		}
+		
 		// Add kmouse to blog cluster
 		var cluster = clusters['blogs-cluster'];
 		sigInst.addNode('kmouse',
@@ -134,7 +163,6 @@
 		sigInst.addEdge(E+0, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('jtorn')]);
 		sigInst.addEdge(E+1, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('kmouse')]);
 		sigInst.addEdge(E+2, cluster.nodes[cluster.nodes.indexOf('blogs')], cluster.nodes[cluster.nodes.indexOf('fraseraddison')]);
-		
 		
 		// Build clusters
 		for(i = 0; i < N; i++)
@@ -184,7 +212,12 @@
 				//document.getElementById("node-text").innerHTML=node['label'];
 				document.getElementById("node-text").innerHTML=node['label'];
 				//console.log(node['attr'].id);
-				loadFeeds(node['attr'].attr.val);
+				/*
+				if (node['attr'].attr != null)
+					loadFeeds(node['attr'].attr.val);
+				else
+					document.getElementById('feed').innerHTML="Feed me...";
+				*/
 				//window.open("http://google.ca","_blank");
 			});
 
@@ -229,50 +262,69 @@
 	{
 		window.onload = init;
 	}
-	</script>
-	<script type="text/javascript">
-	function loadFeeds(address)
-	{
-	//google.load('feeds','1');
-	google.load('feeds', '1', {callback : onGoogleReady});
 	
-	function onGoogleReady()
-	{
-		var callback = populateRSSFeed('feed-list-wrapper-1');
-		initializeRSSFeed(callback, address);
-	}
-	google.setOnLoadCallback(onGoogleReady);
-
-	function populateRSSFeed(divID) {
-		var targetDiv = document.getElementById(divID);
-		return function callback(result) {
-			if (!result.error)
-			{
-				var content = document.getElementById("feed");
-				var html = ''
-				for (var i = 0; i < result.feed.entries.length; i++) 
-				{
-					var entry = result.feed.entries[i];
-					console.log(entry.toString());
-					html += '<p><a href="' + entry.url + '">' + entry.title + '</a></p>';
-				}
-				content.innerHTML = html;
-			}
-			else
-				alert('Error fetching feeds!');
-		}
-	}
-
-
-	function initializeRSSFeed(callback, targetFeed) 
+	function loadFeeds()
 	{
 		//google.load('feeds','1');
-		var feed = new google.feeds.Feed(targetFeed);
-		var numEntries = 3;
-		feed.setNumEntries(numEntries);
-		feed.load(callback);
+		google.load('feeds', '1', {callback : onGoogleReady});
+		
+		function onGoogleReady()
+		{
+			//var callback = populateRSSFeed('feed');
+			var callback = getFeed();
+			for (i = 0; i < feedAddresses.length; i++)
+			{
+				var address = feedAddresses[i];
+				console.log("Retrieving feed from "+address+" ...");
+				initializeRSSFeed(callback, address);
+			}
+		}
+		
+		google.setOnLoadCallback(onGoogleReady);
+		
+		function initializeRSSFeed(callback, targetFeed) 
+		{
+			var feed = new google.feeds.Feed(targetFeed);
+			feed.load(callback);
+		}
+		
+		function getFeed()
+		{
+			return function callback(result) 
+			{
+				if (!result.error)
+				{
+					feeds.push(result.feed); 
+					console.log("Feed retrieved.");
+				}
+				else 
+					console.log("Feed retrieval failed!");
+				//console.log(JSON.stringify(feeds));
+			}
+				
+		}
+		
+		function populateRSSFeed(divID)
+		{
+			var targetDiv = document.getElementById(divID);
+			return function callback(result) {
+				if (!result.error)
+				{
+					var content = document.getElementById("feed");
+					var html = ''
+					for (var i = 0; i < result.feed.entries.length; i++) 
+					{
+						var entry = result.feed.entries[i];
+						console.log(entry.toString());
+						html += '<p><a href="' + entry.url + '">' + entry.title + '</a></p>';
+					}
+					//content.innerHTML = html;
+				}
+				else
+					alert('Error fetching feeds!');
+			}
+		}
 	}
-}
 	</script>
 	
 
