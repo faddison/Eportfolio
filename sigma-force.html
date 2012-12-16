@@ -243,6 +243,21 @@
 				}
 			},true);
 		
+		document.getElementById('add-node').addEventListener('click',function()
+			{
+				var label = sigInst.getNodesCount();
+				sigInst.addNode(label,
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': 10
+				});
+				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
+				sigInst.draw();
+			},true);
+				
+				
+		
 		document.getElementById('rescale-graph').addEventListener('click',function()
 			{
 				sigInst.position(0,0,1).draw();
