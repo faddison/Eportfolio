@@ -22,6 +22,7 @@
 			<button class="btn" id="rescale-graph">Center Graph</button>
 			<button class="btn" id="reset">Reset Graph</button>
 			<button class="btn" id="add-node">Add Node</button>
+			<button class="btn" id="remove-node">Remove Node</button>
 			
     		</div>
 	
@@ -47,6 +48,7 @@
 	"http://jtorn.wordpress.com/feed",
 	"http://fraseraddison.wordpress.com/feed",
 	"http://kmouse.wordpress.com/feed"];
+	var fakeNodes = [];
 	
 	loadFeeds();
 	
@@ -249,6 +251,7 @@
 		document.getElementById('add-node').addEventListener('click',function()
 			{
 				var label = sigInst.getNodesCount();
+				fakeNodes.push(label);
 				sigInst.addNode(label,
 				{
 					'x': Math.random(),
@@ -258,6 +261,17 @@
 				});
 				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
 				sigInst.draw();
+				console.log("Node added.");
+			},true);
+			
+		document.getElementById('remove-node').addEventListener('click',function()
+			{
+				if (fakeNodes.length > 0)
+				{
+					sigInst.dropNode(fakeNodes.pop());
+					sigInst.draw();
+					console.log("Node removed.");
+				}
 			},true);
 				
 		document.getElementById('reset').addEventListener('click',function()
@@ -268,7 +282,10 @@
 						n.y = Math.random();
 					});
 				sigInst.draw();
+				console.log("Graph layout reset.");
 			},true);
+			
+		
 		
 		document.getElementById('rescale-graph').addEventListener('click',function()
 			{
