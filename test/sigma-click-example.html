@@ -1,0 +1,333 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<script src="/js/sigma.min.js"></script>
+
+
+
+
+
+	</head>
+	<body style="background-color:#222">
+<div class="header">
+&nbsp;<br>
+<a href="http://noduslabs.com" target="_blank"><img src="http://noduslabs.com/nodus-logo-white.png" vspace="3"></a></div>
+
+<div class="header">
+Visualization of the most influential followers of a popular Tumblr blog <a href="http://stream.pleated-jeans.com/" target="_blank">Pleated Jeans</a> by <a href="http://noduslabs.com" target="_blank">Nodus Labs</a>&nbsp;&nbsp;&nbsp; /// <a id="displayText" href="javascript:toggle();">How to Use?</a><br>&nbsp;<br></div>
+
+
+
+
+
+
+<div class="span12 sigma-parent" id="sigma-example-parent">
+
+
+
+    <div class="sigma-expand" id="sigma-example"></div>
+<div class="fb-like" data-href="http://noduslabs.com/socialplayer/tumblrblog/" data-send="true" data-layout="box_count" data-width="60" data-show-faces="false" data-colorscheme="dark"></div>
+<div id="subheader" style="display: none"><b>ZOOM</b> &rarr; <br>scroll or swipe over the trackpad <br/><br/>
+<b>NODE'S NETWORK</b> &rarr; <br>hover the cursor over the node<br/><br/>
+<b>TO NAVIGATE</b> &rarr; <br>click on the node<br/><br/>
+<b>TO READ</b> &rarr; <br>bigger nodes <a href="http://noduslabs.com/cases/gephi-find-hubs-communities-tumblr/" target="_blank">spread information better</a><br/>
+same color nodes belong to the same cluster<br/><br/>
+
+<b>PROBLEMS</b> &rarr; <br>point your mouse above the graph and click<br/><br/>
+
+<br/>
+
+&nbsp;<br></div>
+
+
+
+
+  </div>
+
+<div class="footer">&nbsp;<br>
+&nbsp;<br>CC &nbsp;<a href="http://noduslabs.com">Nodus Labs</a>, 23 May 2012. &nbsp;Made with <a href="http://gephi.org" target="_blank">Gephi</a>,  <a href="http://sigmajs.org" target="_blank">sigma.js</a>, and netvizz.<br>&nbsp;<br>
+</div>
+
+&nbsp;<br>
+
+
+<script src="/js/sigma.parseGexf.js"></script><script type="text/javascript">function init() {
+
+
+
+  /**
+   * This is the code to write the FishEye plugin :
+   */
+  
+  (function(){
+ 
+    // First, let's write a FishEye class.
+    // There is no need to make this class global, since it is made to be used through
+    // the SigmaPublic object, that's why a local scope is used for the declaration.
+    // The parameter 'sig' represents a Sigma instance.
+    var FishEye = function(sig) { 
+      sigma.classes.Cascade.call(this);      // The Cascade class manages the chainable property
+                                             // edit/get function.
+ 
+      var self = this;                       // Used to avoid any scope confusion.
+      var isActivated = false;               // Describes is the FishEye is activated.
+ 
+      this.p = {                             // The object containing the properties accessible with
+        radius: 200,                         // the Cascade.config() method.
+        power: 2
+      };
+ 
+      function applyFishEye(mouseX, mouseY) {   // This method will apply a formula relatively to
+                                                // the mouse position.
+        var newDist, newSize, xDist, yDist, dist,
+            radius   = self.p.radius,
+            power    = self.p.power,
+            powerExp = Math.exp(power);
+ 
+        sig.graph.nodes.forEach(function(node) {
+          xDist = node.displayX - mouseX;
+          yDist = node.displayY - mouseY;
+          dist  = Math.sqrt(xDist*xDist + yDist*yDist);
+ 
+          if(dist < radius){
+            newDist = powerExp/(powerExp-1)*radius*(1-Math.exp(-dist/radius*power));
+            newSize = powerExp/(powerExp-1)*radius*(1-Math.exp(-dist/radius*power));
+ 
+            if(!node.isFixed){
+              node.displayX = mouseX + xDist*(newDist/dist*3/4 + 1/4);
+              node.displayY = mouseY + yDist*(newDist/dist*3/4 + 1/4);
+            }
+ 
+            node.displaySize = Math.min(node.displaySize*newSize/dist,10*node.displaySize);
+          }
+        });
+      };
+ 
+      // The method that will be triggered when Sigma's 'graphscaled' is dispatched.
+      function handler() {
+        applyFishEye(
+          sig.mousecaptor.mouseX,
+          sig.mousecaptor.mouseY
+        );
+      }
+ 
+      this.handler = handler;
+ 
+      // A public method to set/get the isActivated parameter.
+      this.activated = function(v) {
+        if(v==undefined){
+          return isActivated;
+        }else{
+          isActivated = v;
+          return this;
+        }
+      };
+ 
+      // this.refresh() is just a helper to draw the graph.
+      this.refresh = function(){
+        sig.draw(2,2,2);
+      };
+    };
+ 
+    // Then, let's add some public method to sigma.js instances :
+    sigma.publicPrototype.activateFishEye = function() {
+      if(!this.fisheye) {
+        var sigmaInstance = this;
+        var fe = new FishEye(sigmaInstance._core);
+        sigmaInstance.fisheye = fe;
+      }
+ 
+      if(!this.fisheye.activated()){
+        this.fisheye.activated(true);
+        this._core.bind('graphscaled', this.fisheye.handler);
+        document.getElementById(
+          'sigma_mouse_'+this.getID()
+        ).addEventListener('mousemove',this.fisheye.refresh,true);
+      }
+ 
+      return this;
+    };
+ 
+    sigma.publicPrototype.desactivateFishEye = function() {
+      if(this.fisheye && this.fisheye.activated()){
+        this.fisheye.activated(false);
+        this._core.unbind('graphscaled', this.fisheye.handler);
+        document.getElementById(
+          'sigma_mouse_'+this.getID()
+        ).removeEventListener('mousemove',this.fisheye.refresh,true);
+      }
+ 
+      return this;
+    };
+ 
+    sigma.publicPrototype.fishEyeProperties = function(a1, a2) {
+      var res = this.fisheye.config(a1, a2);
+      return res == s ? this.fisheye : res;
+    };
+  })();
+
+
+  // Instanciate sigma.js and customize rendering :
+  var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+    defaultLabelColor: '#fff',
+    defaultLabelSize: 18,
+    defaultLabelBGColor: '#fff',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 3,
+    defaultEdgeType: 'curve'
+  }).graphProperties({
+    minNodeSize: 0.5,
+    maxNodeSize: 5,
+    minEdgeSize: 1,
+    maxEdgeSize: 1
+  }).mouseProperties({
+    maxRatio: 4
+  });
+
+  // Parse a GEXF encoded file to fill the graph
+  // (requires "sigma.parseGexf.js" to be included)
+  sigInst.parseGexf('pleatedjeans.gexf');
+
+
+
+  // Bind events :
+  sigInst.bind('overnodes',function(event){
+    var nodes = event.content;
+    var neighbors = {};
+    sigInst.iterEdges(function(e){
+      if(nodes.indexOf(e.source)>=0 || nodes.indexOf(e.target)>=0){
+        neighbors[e.source] = 1;
+        neighbors[e.target] = 1;
+      }
+    }).iterNodes(function(n){
+      if(!neighbors[n.id]){
+        n.hidden = 1;
+      }else{
+        n.hidden = 0;
+      }
+    }).draw(2,2,2);
+  }).bind('outnodes',function(){
+    sigInst.iterEdges(function(e){
+      e.hidden = 0;
+    }).iterNodes(function(n){
+      n.hidden = 0;
+    }).draw(2,2,2);
+  });
+
+	// Mod Dmitry
+
+	
+	sigInst.bind('downnodes',function(event){
+		var node;
+      	sigInst.iterNodes(function(n){
+        node = n;
+      	},[event.content[0]]);
+		window.open("http://"+node['label']+".tumblr.com","_blank");
+	});
+
+// Mod Dmitry
+
+  // Draw the graph :
+//  sigInst.draw();
+  sigInst.activateFishEye().draw();
+
+}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+
+<style type="text/css">
+  /* sigma.js context : */
+  .sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #222;
+    height: 700px;
+z-index:10;
+  }
+  .sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+z-index:parent;
+  }
+
+	.fb-like {
+	position: relative;
+z-index:100;
+margin-left:20px;
+margin-top:40px;
+
+}
+  .buttons-container{
+    padding-bottom: 8px;
+    padding-top: 12px;
+  }
+
+.header {
+	text-align: left;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	color: #aaaaaa;
+	margin-left: 20px;
+	
+}
+
+#subheader {
+
+	text-align: left;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: light;
+	color: #ffffff;
+	padding-left: 20px;
+padding-top:100px;
+	width:300px;
+	opacity:0.5;
+}
+
+ a {
+	color: #bbbbbb
+
+}
+
+
+.footer {
+	text-align: left;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	color: #aaaaaa;
+	margin-left:20px;
+
+.help {
+
+	text-align: left;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 13px;
+	font-weight: normal;
+	color: #aaaaaa;
+}
+
+.fb
+
+	
+}
+
+
+</style>
+
+	</body>
+</html>

@@ -1,0 +1,124 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<script src="/js/sigma.min.js"></script>
+
+
+
+
+
+	</head>
+	<body style="background-color:#222">
+<div class="span12 sigma-parent" id="sigma-example-parent">
+
+
+
+<div class="sigma-expand" id="sigma-example"></div>
+
+<script src="/js/sigma.parseGexf.js"></script><script type="text/javascript">function init() {
+
+
+
+  
+
+
+  // Instanciate sigma.js and customize rendering :
+  var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+    defaultLabelColor: '#fff',
+    defaultLabelSize: 18,
+    defaultLabelBGColor: '#fff',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 3,
+    defaultEdgeType: 'curve'
+  }).graphProperties({
+    minNodeSize: 0.5,
+    maxNodeSize: 5,
+    minEdgeSize: 1,
+    maxEdgeSize: 1
+  }).mouseProperties({
+    maxRatio: 4
+  });
+
+  // Parse a GEXF encoded file to fill the graph
+  // (requires "sigma.parseGexf.js" to be included)
+  sigInst.parseGexf('pleatedjeans.gexf');
+
+
+
+  // Bind events :
+  sigInst.bind('overnodes',function(event){
+    var nodes = event.content;
+    var neighbors = {};
+    sigInst.iterEdges(function(e){
+      if(nodes.indexOf(e.source)>=0 || nodes.indexOf(e.target)>=0){
+        neighbors[e.source] = 1;
+        neighbors[e.target] = 1;
+      }
+    }).iterNodes(function(n){
+      if(!neighbors[n.id]){
+        n.hidden = 1;
+      }else{
+        n.hidden = 0;
+      }
+    }).draw(2,2,2);
+  }).bind('outnodes',function(){
+    sigInst.iterEdges(function(e){
+      e.hidden = 0;
+    }).iterNodes(function(n){
+      n.hidden = 0;
+    }).draw(2,2,2);
+  });
+
+	// Mod Dmitry
+
+	
+	sigInst.bind('downnodes',function(event){
+		var node;
+      	sigInst.iterNodes(function(n){
+        node = n;
+      	},[event.content[0]]);
+		window.open("http://"+node['label']+".tumblr.com","_blank");
+	});
+
+// Mod Dmitry
+
+  // Draw the graph :
+  sigInst.draw();
+  //sigInst.activateFishEye().draw();
+
+}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+
+<style type="text/css">
+  /* sigma.js context : */
+  .sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #222;
+    height: 700px;
+z-index:10;
+  }
+  .sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+z-index:parent;
+  }
+
+
+</style>
+</body>
+</html>

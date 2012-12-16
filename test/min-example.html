@@ -1,0 +1,23 @@
+<html>
+<div id="sig"></div>
+<script src="js/sigma.min.js"></script>
+<script type="text/javascript">
+function init() {
+var sigRoot = document.getElementById('sig');
+var sigInst = sigma.init(sigRoot);
+sigInst.addNode('hello',{
+  label: 'Hello',
+  color: '#ff0000'
+}).addNode('world',{
+  label: 'World !',
+  color: '#00ff00'
+}).addEdge('hello_world','hello','world').draw();}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+
+</html>

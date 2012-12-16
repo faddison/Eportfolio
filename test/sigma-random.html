@@ -1,0 +1,132 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+		<title>Sigma Network</title>
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script src="/js/sigma.min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+	
+	<div class="container">
+	
+	<div class="row">
+		<div class="sigma-parent" id="sigma-example-parent">
+		<div class="sigma-expand" id="sigma-example"></div>
+	</div><!-- .row -->
+	
+	<div class="row">
+		<div class="test" id="node-text">Click a node</div>
+	</div><!-- .row -->
+	
+	</div><!-- .container -->
+	
+	<script type="text/javascript">
+	function init() {
+	  // The following method will parse the related sigma instance nodes
+	  // and set their positions around a circle:
+	  sigma.publicPrototype.myCircularLayout = function() {
+		var R = 100,
+			i = 0,
+			L = this.getNodesCount();
+	 
+		this.iterNodes(function(n){
+		  n.x = Math.cos(Math.PI*(i++)/L)*R;
+		  n.y = Math.sin(Math.PI*(i++)/L)*R;
+		});
+	 
+		return this.position(0,0,1).draw();
+	  };
+	 
+	  // The following method will parse the related sigma instance nodes
+	  // and set its position to as random in a square around the center:
+	  sigma.publicPrototype.myRandomLayout = function() {
+		var W = 100,
+			H = 100;
+		
+		this.iterNodes(function(n){
+		  n.x = W*Math.random();
+		  n.y = H*Math.random();
+		});
+	 
+		return this.position(0,0,1).draw();
+	  };
+	 
+	  // Instanciate sigma.js and customize it :
+	  var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+		defaultLabelColor: '#fff'
+	  });
+	 
+	  // Generate a random graph with :
+	  //   . N nodes
+	  //   . E edges
+	  var i, N = 25, E = 40;
+	 
+	  for(i = 0; i < N; i++){
+		sigInst.addNode('n'+i,{
+		  'x': Math.random(),
+		  'y': Math.random(),
+		  'label': 'Node '+i,
+		  'size': 0.5+4.5*Math.random(),
+		  'color': 'rgb('+Math.round(Math.random()*256)+','+
+						  Math.round(Math.random()*256)+','+
+						  Math.round(Math.random()*256)+')'
+		});
+	  }
+	 
+	  for(i = 0; i < E; i++){
+		sigInst.addEdge(i,'n'+(Math.random()*N|0),'n'+(Math.random()*N|0));
+	  }
+	 
+	  
+
+
+	sigInst.bind('downnodes',function(event){
+			var node;
+			sigInst.iterNodes(function(n){
+			node = n;
+			},[event.content[0]]);
+			document.getElementById("node-text").innerHTML=node['label'];
+			//window.open("http://google.ca","_blank");
+		});
+	 
+		// Draw the graph :
+		sigInst.draw();
+	 
+	 
+	 }
+	 
+	 
+	 
+	if (document.addEventListener) {
+	  document.addEventListener('DOMContentLoaded', init, false);
+	} else {
+	  window.onload = init;
+	}
+	</script>
+	<style type="text/css">
+	  /* sigma.js context : */
+	  .sigma-parent {
+		position: relative;
+		border-radius: 4px;
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		background: #222;
+		height: 500px;
+	  }
+	  .sigma-expand {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+	  }
+	  test {
+		  top: 600px;
+		}
+	</style>
+	<br>
+	</body>
+</html>

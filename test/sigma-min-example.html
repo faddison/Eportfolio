@@ -1,0 +1,76 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<script src="/js/sigma.min.js"></script>
+
+
+
+
+
+</head>
+<body>
+<div class="span12 sigma-parent" id="sigma-example-parent">
+<div class="sigma-expand" id="sigma-example"></div>
+<script type="text/javascript">
+function init() 
+{
+	//var sigRoot = document.getElementById('sigma-example');
+	//var sigInst = sigma.init(sigRoot);
+	
+	var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties({
+    defaultLabelColor: '#fff',
+    defaultLabelSize: 18,
+    defaultLabelBGColor: '#fff',
+    defaultLabelHoverColor: '#000',
+    labelThreshold: 3,
+    defaultEdgeType: 'curve'
+  }).graphProperties({
+    minNodeSize: 0.5,
+    maxNodeSize: 5,
+    minEdgeSize: 1,
+    maxEdgeSize: 1
+  }).mouseProperties({
+    maxRatio: 4
+  });
+	
+	sigInst.addNode('hello',{
+	  label: 'Hello',
+	  color: '#00ff00'
+	});
+	sigInst.addNode('world',{
+	  label: 'World !',
+	  color: '#00ff00'
+	});
+	sigInst.addEdge('hello_world','hello','world');
+	sigInst.draw();
+}
+
+if (document.addEventListener) {
+  document.addEventListener("DOMContentLoaded", init, false);
+} else {
+  window.onload = init;
+}
+</script>
+<style type="text/css">
+  /* sigma.js context : */
+  .sigma-parent {
+    position: relative;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #222;
+    height: 500px;
+  }
+  .sigma-expand {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+  }
+</style>
+</body>
+</html>
