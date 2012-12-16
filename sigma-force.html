@@ -19,8 +19,10 @@
 		<h2 class="span12" id="post-title">ForceAtlas2 Sigma Example on a random graph</h2>
 		<div class="span12 buttons-container">
 			<button class="btn" id="stop-layout">Stop Layout</button>
-			<button class="btn" id="rescale-graph">Rescale Graph</button>
+			<button class="btn" id="rescale-graph">Center Graph</button>
+			<button class="btn" id="reset">Reset Graph</button>
 			<button class="btn" id="add-node">Add Node</button>
+			
     		</div>
 	
 		<div class="span12 sigma-parent" id="sigma-example-parent">
@@ -92,6 +94,7 @@
 					'x': Math.random(),
 					'y': Math.random(),
 					'size': 10,
+					'color': 'rgb(256,256,256)'
 				});
 		
 		// Add parent node to blog cluster
@@ -250,13 +253,22 @@
 				{
 					'x': Math.random(),
 					'y': Math.random(),
-					'size': 10
+					'size': 10,
+					'color': 'rgb(256,256,256)'
 				});
 				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
 				sigInst.draw();
 			},true);
 				
-				
+		document.getElementById('reset').addEventListener('click',function()
+			{
+				sigInst.iterNodes(function(n)
+					{
+						n.x = Math.random(); 
+						n.y = Math.random();
+					});
+				sigInst.draw();
+			},true);
 		
 		document.getElementById('rescale-graph').addEventListener('click',function()
 			{
