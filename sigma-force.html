@@ -55,12 +55,34 @@
 	
 	function init() 
 	{
+	
+		var	drawProps={
+			defaultLabelSize: 14,
+			defaultLabelBGColor: "#ddd",
+			defaultHoverLabelBGColor: "#002147",
+			defaultLabelHoverColor: "#fff",
+			defaultEdgeType: "line",
+			hoverFontStyle: "bold",
+			fontStyle: "bold",
+			activeFontStyle: "bold"
+		};
 		
-		// Instanciate sigma.js and customize it :
-		var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(
-			{
-				defaultLabelColor: '#fff'
-			});
+		var	graphProps={
+			minNodeSize: 1,
+			maxNodeSize: 7,
+			minEdgeSize: 1,
+			maxEdgeSize: 2
+			};
+			
+		var	mouseProps={
+			minRatio: 0.75, // How far can we zoom out?
+			maxRatio: 20, // How far can we zoom in?
+			};
+		
+		var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(drawProps).graphProperties(graphProps).mouseProperties(mouseProps);
+    
+		
+		
 
 		// Generate a random graph with :
 		//   . N nodes
@@ -97,7 +119,7 @@
 					'x': Math.random(),
 					'y': Math.random(),
 					'size': nodeSize,
-					'color': 'rgb(256,256,256)'
+					'color': 'rgb(0,0,0)'
 				});
 		
 		// Add parent node to blog cluster
@@ -258,7 +280,7 @@
 					'x': Math.random(),
 					'y': Math.random(),
 					'size': nodeSize,
-					'color': 'rgb(256,256,256)'
+					'color': 'rgb(0,0,0)'
 				});
 				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
 				sigInst.draw();
@@ -380,7 +402,7 @@
 		border-radius: 4px;
 		-moz-border-radius: 4px;
 		-webkit-border-radius: 4px;
-		background: #222;
+		background: #fff;
 		height: 500px;
 	  }
 	  .sigma-expand {
@@ -390,9 +412,6 @@
 		top: 0;
 		left: 0;
 	  }
-	  test {
-		  top: 600px;
-		}
 	</style>
 	<br>
 	</body>
