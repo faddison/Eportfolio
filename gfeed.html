@@ -1,0 +1,37 @@
+<html>
+<head>
+
+		<script src="https://www.google.com/jsapi"></script>
+		
+</head>
+<body>
+<div id='feed'></div>
+<script type="text/javascript">
+		//google.load('feeds', '1', {callback : function(){}});
+		google.load('feeds','1');
+		
+		google.setOnLoadCallback(initialize);
+		function initialize()
+		{
+			console.log("test");
+			//var feed = new google.feeds.Feed("http://jtorn.wordpress.com/feed/");
+			var feed = new google.feeds.Feed("http://fastpshb.appspot.com/feed/1/fastpshb");
+			feed.load(function(result) 
+			{
+				if (!result.error) 
+				{
+					var content = document.getElementById("feed");
+					console.log("test");
+					for (var i = 0; i < result.entries.length; i++) 
+					{
+						var entry = result.entries[i];
+						console.log(entry.toString());
+						html += '<p><a href="' + entry.url + '">' + entry.title + '</a></p>';
+					}
+					content.innerHTML = html;
+				}
+			});
+		}
+</script>
+</body>
+</html>
