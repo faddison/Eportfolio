@@ -9,7 +9,6 @@
 		<script src="/js/sigma.forceatlas2.js"></script>
 		<script src="/js/bootstrap.min.js"></script>
 		<script src="https://www.google.com/jsapi"></script>
-		<script> var feeds = []; </script>
 		<script src="feeder.js"></script>
 	</head>
 	<body>
@@ -42,10 +41,17 @@
 	//google.load('feeds', '1', {callback : function(){}});
 	</script>
 	<script type="text/javascript">
+	var feeds = [];
 	var fakeNodes = [];
 	var nodeSize = 5;
+	var sigInst;
 	
 	console.log("feed count "+ feeds.length);
+	
+	function addFeed(feed)
+	{
+		feeds.push(feed);
+	}
 	
 	function init() 
 	{
@@ -73,8 +79,103 @@
 			maxRatio: 20, // How far can we zoom in?
 			};
 		
-		var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(drawProps).graphProperties(graphProps).mouseProperties(mouseProps);
+		sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(drawProps).graphProperties(graphProps).mouseProperties(mouseProps);
+		
+		// Click event handling
+		sigInst.bind('downnodes',function(event)
+			{
+				var node;
+				sigInst.iterNodes(function(n)
+					{
+						node = n;
+					},[event.content[0]]);
+				//if (node['label'] == 'jtorn')
+				//document.getElementById("node-text").innerHTML=node['label'];
+				document.getElementById("node-text").innerHTML=node['label'];
+				//console.log(node['attr'].id);
+				/*
+				if (node['attr'].attr != null)
+					loadFeeds(node['attr'].attr.val);
+				else
+					document.getElementById('feed').innerHTML="Feed me...";
+				*/
+				//window.open("http://google.ca","_blank");
+			});
 
+		// Start the ForceAtlas2 algorithm
+		// (requires "sigma.forceatlas2.js" to be included)
+		sigInst.startForceAtlas2();
+		
+		// Start/Stop forceatlas layout
+		var isRunning = true;
+		document.getElementById('stop-layout').addEventListener('click',function()
+			{
+				if(isRunning)
+				{
+					isRunning = false;
+					sigInst.stopForceAtlas2();
+					document.getElementById('stop-layout').childNodes[0].nodeValue = 'Start Layout';
+				} 
+				else
+				{
+					isRunning = true;
+					sigInst.startForceAtlas2();
+					document.getElementById('stop-layout').childNodes[0].nodeValue = 'Stop Layout';
+				}
+			},true);
+		
+		document.getElementById('add-node').addEventListener('click',function()
+			{
+				var label = sigInst.getNodesCount();
+				fakeNodes.push(label);
+				sigInst.addNode(label,
+				{
+					'x': Math.random(),
+					'y': Math.random(),
+					'size': nodeSize,
+					'color': 'rgb(0,0,0)'
+				});
+				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
+				sigInst.draw();
+				console.log("Node added.");
+			},true);
+			
+		document.getElementById('remove-node').addEventListener('click',function()
+			{
+				if (fakeNodes.length > 0)
+				{
+					sigInst.dropNode(fakeNodes.pop());
+					sigInst.draw();
+					console.log("Node removed.");
+				}
+			},true);
+				
+		document.getElementById('reset').addEventListener('click',function()
+			{
+				sigInst.iterNodes(function(n)
+					{
+						n.x = Math.random(); 
+						n.y = Math.random();
+					});
+				sigInst.draw();
+				console.log("Graph layout reset.");
+			},true);
+			
+		
+		
+		document.getElementById('rescale-graph').addEventListener('click',function()
+			{
+				sigInst.position(0,0,1).draw();
+			},true);
+
+		buildGraph();
+		// Draw the graph :
+		//sigInst.draw();
+		
+	}
+	
+	function buildGraph()
+	{
 		// Generate a random graph with :
 		//   . N nodes
 		//   . E edges
@@ -203,96 +304,7 @@
 		var blogsCluster = clusters['blogs-cluster'];
 		sigInst.addEdge(E+3+clusters.length, sigInst.getNodes('master').id, blogsCluster.nodes[blogsCluster.nodes.indexOf('blogs')]);
 		
-		// Click event handling
-		sigInst.bind('downnodes',function(event)
-			{
-				var node;
-				sigInst.iterNodes(function(n)
-					{
-						node = n;
-					},[event.content[0]]);
-				//if (node['label'] == 'jtorn')
-				//document.getElementById("node-text").innerHTML=node['label'];
-				document.getElementById("node-text").innerHTML=node['label'];
-				//console.log(node['attr'].id);
-				/*
-				if (node['attr'].attr != null)
-					loadFeeds(node['attr'].attr.val);
-				else
-					document.getElementById('feed').innerHTML="Feed me...";
-				*/
-				//window.open("http://google.ca","_blank");
-			});
-
-		// Start the ForceAtlas2 algorithm
-		// (requires "sigma.forceatlas2.js" to be included)
-		sigInst.startForceAtlas2();
 		
-		// Start/Stop forceatlas layout
-		var isRunning = true;
-		document.getElementById('stop-layout').addEventListener('click',function()
-			{
-				if(isRunning)
-				{
-					isRunning = false;
-					sigInst.stopForceAtlas2();
-					document.getElementById('stop-layout').childNodes[0].nodeValue = 'Start Layout';
-				} 
-				else
-				{
-					isRunning = true;
-					sigInst.startForceAtlas2();
-					document.getElementById('stop-layout').childNodes[0].nodeValue = 'Stop Layout';
-				}
-			},true);
-		
-		document.getElementById('add-node').addEventListener('click',function()
-			{
-				var label = sigInst.getNodesCount();
-				fakeNodes.push(label);
-				sigInst.addNode(label,
-				{
-					'x': Math.random(),
-					'y': Math.random(),
-					'size': nodeSize,
-					'color': 'rgb(0,0,0)'
-				});
-				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('master').id, sigInst.getNodes(label).id);
-				sigInst.draw();
-				console.log("Node added.");
-			},true);
-			
-		document.getElementById('remove-node').addEventListener('click',function()
-			{
-				if (fakeNodes.length > 0)
-				{
-					sigInst.dropNode(fakeNodes.pop());
-					sigInst.draw();
-					console.log("Node removed.");
-				}
-			},true);
-				
-		document.getElementById('reset').addEventListener('click',function()
-			{
-				sigInst.iterNodes(function(n)
-					{
-						n.x = Math.random(); 
-						n.y = Math.random();
-					});
-				sigInst.draw();
-				console.log("Graph layout reset.");
-			},true);
-			
-		
-		
-		document.getElementById('rescale-graph').addEventListener('click',function()
-			{
-				sigInst.position(0,0,1).draw();
-			},true);
-
-	 
-		// Draw the graph :
-		//sigInst.draw();
 	 
 	}
 	

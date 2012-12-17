@@ -1,4 +1,4 @@
-var feeds = [];
+function feeder(){
 
 var feedAddresses = [
 	"http://jtorn.wordpress.com/feed",
@@ -42,4 +42,5 @@ function getFeed()
 		//console.log(JSON.stringify(feeds));
 	}
 		
+}
 }
