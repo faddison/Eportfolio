@@ -9,6 +9,8 @@
 		<script src="/js/sigma.forceatlas2.js"></script>
 		<script src="/js/bootstrap.min.js"></script>
 		<script src="https://www.google.com/jsapi"></script>
+		<script> var feeds = []; </script>
+		<script src="feeder.js"></script>
 	</head>
 	<body>
 	
@@ -40,18 +42,10 @@
 	//google.load('feeds', '1', {callback : function(){}});
 	</script>
 	<script type="text/javascript">
-	var kmouseEntries = [];
-	var jtornEntries = [];
-	var feeds = [];
-	var fraseraddisonEntries = [];
-	var feedAddresses = [
-	"http://jtorn.wordpress.com/feed",
-	"http://fraseraddison.wordpress.com/feed",
-	"http://kmouse.wordpress.com/feed"];
 	var fakeNodes = [];
 	var nodeSize = 5;
 	
-	loadFeeds();
+	console.log("feed count "+ feeds.length);
 	
 	function init() 
 	{
@@ -80,9 +74,6 @@
 			};
 		
 		var sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(drawProps).graphProperties(graphProps).mouseProperties(mouseProps);
-    
-		
-		
 
 		// Generate a random graph with :
 		//   . N nodes
@@ -146,22 +137,6 @@
 					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
 				});
 		cluster.nodes.push('jtorn');
-		
-		// create jtorn nodes
-		for (i = 0; i < jtornEntries.length; i++)
-		{
-			var entry = jtornEntries[i];
-			sigInst.addNode('jtorn',
-				{
-					'x': Math.random(),
-					'y': Math.random(),
-					'size': nodeSize,
-					'color': cluster['color'],
-					'cluster': cluster['id'],
-					'attr':{attr: 'address', val:'http://jtorn.wordpress.com/feed'}
-				});
-			cluster.nodes.push('jtorn');
-		}
 		
 		// Add kmouse to blog cluster
 		var cluster = clusters['blogs-cluster'];
@@ -330,68 +305,6 @@
 		window.onload = init;
 	}
 	
-	function loadFeeds()
-	{
-		//google.load('feeds','1');
-		google.load('feeds', '1', {callback : onGoogleReady});
-		
-		function onGoogleReady()
-		{
-			//var callback = populateRSSFeed('feed');
-			var callback = getFeed();
-			for (i = 0; i < feedAddresses.length; i++)
-			{
-				var address = feedAddresses[i];
-				console.log("Retrieving feed from "+address+" ...");
-				initializeRSSFeed(callback, address);
-			}
-		}
-		
-		google.setOnLoadCallback(onGoogleReady);
-		
-		function initializeRSSFeed(callback, targetFeed) 
-		{
-			var feed = new google.feeds.Feed(targetFeed);
-			feed.load(callback);
-		}
-		
-		function getFeed()
-		{
-			return function callback(result) 
-			{
-				if (!result.error)
-				{
-					feeds.push(result.feed); 
-					console.log("Feed retrieved.");
-				}
-				else 
-					console.log("Feed retrieval failed!");
-				//console.log(JSON.stringify(feeds));
-			}
-				
-		}
-		
-		function populateRSSFeed(divID)
-		{
-			var targetDiv = document.getElementById(divID);
-			return function callback(result) {
-				if (!result.error)
-				{
-					var content = document.getElementById("feed");
-					var html = ''
-					for (var i = 0; i < result.feed.entries.length; i++) 
-					{
-						var entry = result.feed.entries[i];
-						console.log(entry.toString());
-						html += '<p><a href="' + entry.url + '">' + entry.title + '</a></p>';
-					}
-					//content.innerHTML = html;
-				}
-				else
-					alert('Error fetching feeds!');
-			}
-		}
-	}
 	</script>
 	
 
