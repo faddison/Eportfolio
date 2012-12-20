@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-		<title>Sigma Network</title>
+		<title>Fraser Addison</title>
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="/js/sigma.min.js"></script>
 		<script src="/js/sigma.forceatlas2.js"></script>
@@ -17,7 +17,7 @@
 	
 	<div class="row">
 		
-		<h2 class="span12" id="post-title">ForceAtlas2 Sigma Example on a random graph</h2>
+		<h2 class="span12" id="post-title">Dynamically populated graph from RSS blog feeds.</h2>
 		<div class="span12 buttons-container">
 			<button class="btn" id="stop-layout">Stop Layout</button>
 			<button class="btn" id="rescale-graph">Center Graph</button>
@@ -36,6 +36,10 @@
 		<div class="span12" id="feed">Feed me...</div>
 	</div><!-- .row -->
 	
+	<form id="feed-data">
+	<input type="hidden" name="feed-result" value="">
+	</form>
+	
 	</div><!-- .container -->
 	<script type="text/javascript">
 	//google.load('feeds', '1', {callback : function(){}});
@@ -47,6 +51,7 @@
 	var nodes = [];
 	var nodeSize = 5;
 	var sigInst;
+	var isRunning = false;
 	
 	console.log("feed count "+ feeds.length);
 	
@@ -58,13 +63,20 @@
 	
 	function buildFeed(feed)
 	{
-		console.log(feed.title);
-		/*
+		
+		//console.log(feed.title);
+		//sigInst.stopForceAtlas2();
+		//isRunning = false;
 		buildWordpress();
 		buildCluster(feed);
 		buildParent(feed);
 		buildChildren(feed);
-		*/
+		//sigInst.draw();
+		if (!isRunning)
+		{
+			sigInst.startForceAtlas2();
+			isRunning = true;
+		}
 	}
 	
 	function logNode(label)
@@ -77,7 +89,8 @@
 	function buildWordpress()
 	{
 		var label = "Wordpress";
-		if (nodes.indexOf(label) != -1)
+		console.log(nodes.indexOf(label));
+		if (nodes.indexOf(label) == -1)
 		{
 			sigInst.addNode(label,
 					{
@@ -143,7 +156,7 @@
 		{
 			var entry = feed.entries[i];
 			var label = entry.title;
-			if (sigInst.getNodes(label).id === null)
+			if (nodes.indexOf(label) == -1)
 			{
 				sigInst.addNode(label,
 						{
@@ -158,6 +171,16 @@
 				logNode(label);
 			}
 		}
+	}
+	
+	function main()
+	{
+		init();
+		setBindings();
+		feeder();
+		//setTimeout(1000, sigInst.startForceAtlas2());
+		
+		//buildGraph();
 	}
 	
 	function init() 
@@ -187,7 +210,11 @@
 			};
 		
 		sigInst = sigma.init(document.getElementById('sigma-example')).drawingProperties(drawProps).graphProperties(graphProps).mouseProperties(mouseProps);
-		
+	
+	}
+	
+	function setBindings()
+	{
 		// Click event handling
 		sigInst.bind('downnodes',function(event)
 			{
@@ -211,10 +238,9 @@
 
 		// Start the ForceAtlas2 algorithm
 		// (requires "sigma.forceatlas2.js" to be included)
-		sigInst.startForceAtlas2();
+		//sigInst.startForceAtlas2();
 		
 		// Start/Stop forceatlas layout
-		var isRunning = true;
 		document.getElementById('stop-layout').addEventListener('click',function()
 			{
 				if(isRunning)
@@ -265,6 +291,8 @@
 						n.y = Math.random();
 					});
 				sigInst.draw();
+				if (!isRunning)
+					sigInst.startForceAtlas2();
 				console.log("Graph layout reset.");
 			},true);
 			
@@ -274,10 +302,17 @@
 			{
 				sigInst.position(0,0,1).draw();
 			},true);
+		
+		//var feedElement = document.getElementById('feed-data');
+		
+		document.addEventListener('newFeed', function(e)
+			{
+				var feed = e.detail.message;
+				console.log('feed triggered');
+				//console.log(feed);
+				buildFeed(feed);
+			},true);
 
-		//feeder();
-		buildGraph();
-		// Draw the graph :
 		//sigInst.draw();
 		
 	}
@@ -412,18 +447,15 @@
 		var blogsCluster = clusters['blogs-cluster'];
 		sigInst.addEdge(E+3+clusters.length, sigInst.getNodes('master').id, blogsCluster.nodes[blogsCluster.nodes.indexOf('blogs')]);
 		
-		var graph = new graph();
-		console.log(graph);
-		
 	}
 	
 	if (document.addEventListener) 
 	{
-		document.addEventListener('DOMContentLoaded', init, false);
+		document.addEventListener('DOMContentLoaded', main, false);
 	} 
 	else 
 	{
-		window.onload = init;
+		window.onload = main;
 	}
 	
 	</script>
