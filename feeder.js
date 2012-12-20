@@ -4,6 +4,8 @@ var feedAddresses = [
 	"http://jtorn.wordpress.com/feed",
 	"http://fraseraddison.wordpress.com/feed",
 	"http://kmouse.wordpress.com/feed"];		
+	
+var count = 0;
 
 //google.load('feeds','1');
 google.load('feeds', '1', {callback : onGoogleReady});
@@ -34,8 +36,10 @@ function getFeed()
 	{
 		if (!result.error)
 		{
-			feeds.push(result.feed); 
+			if (count == 0);
+				addFeed(result.feed); 
 			console.log("Feed retrieved.");
+			count++;
 		}
 		else 
 			console.log("Feed retrieval failed!");

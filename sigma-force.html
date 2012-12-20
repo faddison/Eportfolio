@@ -42,7 +42,9 @@
 	</script>
 	<script type="text/javascript">
 	var feeds = [];
+	var clusters = [];
 	var fakeNodes = [];
+	var nodes = [];
 	var nodeSize = 5;
 	var sigInst;
 	
@@ -51,6 +53,111 @@
 	function addFeed(feed)
 	{
 		feeds.push(feed);
+		buildFeed(feed);
+	}
+	
+	function buildFeed(feed)
+	{
+		console.log(feed.title);
+		/*
+		buildWordpress();
+		buildCluster(feed);
+		buildParent(feed);
+		buildChildren(feed);
+		*/
+	}
+	
+	function logNode(label)
+	{
+		console.log(label+" node created.");
+		nodes.push(label);
+		sigInst.draw();
+	}
+	
+	function buildWordpress()
+	{
+		var label = "Wordpress";
+		if (nodes.indexOf(label) != -1)
+		{
+			sigInst.addNode(label,
+					{
+						'x': Math.random(),
+						'y': Math.random(),
+						'size': nodeSize,
+						'color': 'rgb('+Math.round(Math.random()*256)+','+
+										  Math.round(Math.random()*256)+','+
+										  Math.round(Math.random()*256)+')'
+					});
+			logNode(label);
+		}
+	}
+		
+	function buildCluster(feed)
+	{
+		// Create blogs clusters
+		var label = feed.title+"-cluster";
+		console.log(clusters.indexOf(label));
+		if (clusters.indexOf(label) == -1)
+		{
+			clusters[label] =
+					{
+						'id': label,
+						'nodes': [],
+						'color': 'rgb('+Math.round(Math.random()*256)+','+
+									  Math.round(Math.random()*256)+','+
+									  Math.round(Math.random()*256)+')'
+					};
+			console.log(label+" cluster created.");
+			clusters.push(label);
+		}
+	}
+	
+	function buildParent(feed)
+	{
+		// Add parent node to blog cluster
+		var cluster = clusters[feed.title+"-cluster"];
+		var label = feed.title;
+		if (nodes.indexOf(label) == -1)
+		{
+			sigInst.addNode(label,
+					{
+						'x': Math.random(),
+						'y': Math.random(),
+						'size': nodeSize,
+						'color': cluster['color'],
+						'cluster': cluster['id'],
+					});
+			
+			cluster.nodes.push(label);
+			sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes('Wordpress').id, sigInst.getNodes(label).id);		
+			logNode(label);
+		}
+	}
+	
+	function buildChildren(feed)
+	{
+		var parentLabel = feed.title;
+		var clusterLabel = feed.title+"-cluster";
+		var cluster = clusters[clusterLabel];
+		for (i = 0; i < feed.entries.length; i++)
+		{
+			var entry = feed.entries[i];
+			var label = entry.title;
+			if (sigInst.getNodes(label).id === null)
+			{
+				sigInst.addNode(label,
+						{
+							'x': Math.random(),
+							'y': Math.random(),
+							'size': nodeSize,
+							'color': cluster['color'],
+							'cluster': cluster['id'],
+						});
+				cluster.nodes.push(label);
+				sigInst.addEdge(sigInst.getEdgesCount(), sigInst.getNodes(parentLabel).id, sigInst.getNodes(label).id);
+				logNode(label);
+			}
+		}
 	}
 	
 	function init() 
@@ -168,6 +275,7 @@
 				sigInst.position(0,0,1).draw();
 			},true);
 
+		//feeder();
 		buildGraph();
 		// Draw the graph :
 		//sigInst.draw();
@@ -304,8 +412,9 @@
 		var blogsCluster = clusters['blogs-cluster'];
 		sigInst.addEdge(E+3+clusters.length, sigInst.getNodes('master').id, blogsCluster.nodes[blogsCluster.nodes.indexOf('blogs')]);
 		
+		var graph = new graph();
+		console.log(graph);
 		
-	 
 	}
 	
 	if (document.addEventListener) 
